@@ -46,38 +46,38 @@ A construction & real estate company managing multiple active projects across di
 
 ```mermaid
 graph TB
-    subgraph Presentation Layer
-        A[Blade UI] --> B[AJAX Endpoints]
-        A --> C[AI Chatbot Widget]
+    subgraph PresentationLayer["Presentation Layer"]
+        A["Blade UI"] --> B["AJAX Endpoints"]
+        A --> C["AI Chatbot Widget"]
     end
 
-    subgraph Auth & Security
-        D[Multi-Guard Middleware\nadminAuth / userAuth]
-        E[RBAC: SoftwareMenu + InternalLink Access]
-        F[Project-Scoped Data Gate\nCtProjectUserAssignment]
+    subgraph AuthSecurity["Auth & Security"]
+        D["Multi-Guard Middleware: adminAuth / userAuth"]
+        E["RBAC: SoftwareMenu + InternalLink Access"]
+        F["Project-Scoped Data Gate: CtProjectUserAssignment"]
     end
 
-    subgraph Domain Controllers 66+ controllers
-        G[Requisition Engine]
-        H[Comparative Statement CS Engine]
-        I[Purchase Order PO Engine]
-        J[Work Order WO Approval Engine]
-        K[Sub-Contractor Lifecycle Engine]
-        L[FIFO Inventory Engine]
-        M[Bill Vetting & CEO Approval Engine]
-        N[Financial JV Posting Engine]
-        O[Dashboard Analytics Engine]
-        P[AI Chatbot Controller]
+    subgraph DomainControllers["Domain Controllers — 66+ Controllers"]
+        G["Requisition Engine"]
+        H["Comparative Statement CS Engine"]
+        I["Purchase Order PO Engine"]
+        J["Work Order WO Approval Engine"]
+        K["Sub-Contractor Lifecycle Engine"]
+        L["FIFO Inventory Engine"]
+        M["Bill Vetting and CEO Approval Engine"]
+        N["Financial JV Posting Engine"]
+        O["Dashboard Analytics Engine"]
+        P["AI Chatbot Controller"]
     end
 
-    subgraph Persistence
-        Q[(MySQL InnoDB\n195+ Models\n50+ Tables)]
-        R[(File Attachments\nStorage)]
-        S[(Cache\nManual JSON KB)]
+    subgraph Persistence["Persistence Layer"]
+        Q[("MySQL InnoDB — 195+ Models, 50+ Tables")]
+        R[("File Attachments Storage")]
+        S[("Cache — Manual JSON Knowledge Base")]
     end
 
-    Presentation Layer --> Auth & Security --> Domain Controllers
-    Domain Controllers --> Persistence
+    PresentationLayer --> AuthSecurity --> DomainControllers
+    DomainControllers --> Persistence
 ```
 
 ---
@@ -298,21 +298,21 @@ An intelligent contextual assistant embedded system-wide, built as a **RAG-Lite 
 
 ```mermaid
 flowchart TD
-    Q([User Query: English / Bangla / Banglish]) --> C[ChatbotController@ask]
-    C --> KB[Load 64-module user_manual.json from Cache]
-    KB --> Fuzzy[Keyword Fuzzy Scoring Engine]
-    Fuzzy --> Match{Module Matched?}
-    Match -->|Yes| RBAC{User has permission\nfor this module?}
-    RBAC -->|No| Deny[Return 'Access Restricted' Message]
-    RBAC -->|Yes| Inject[Inject module context into prompt]
+    Q(["User Query: English / Bangla / Banglish"]) --> C["ChatbotController — ask method"]
+    C --> KB["Load 64-module user_manual.json from Cache"]
+    KB --> Fuzzy["Keyword Fuzzy Scoring Engine"]
+    Fuzzy --> Match{"Module Matched?"}
+    Match -->|Yes| RBAC{"User has permission for this module?"}
+    RBAC -->|No| Deny["Return Access Restricted Message"]
+    RBAC -->|Yes| Inject["Inject module context into prompt"]
     Match -->|No| Inject
-    Inject --> API{Gemini 2.5 Flash API\nAvailable?}
-    API -->|Success| MD[Render Rich Markdown Response]
-    API -->|Fail → Retry| G2[Gemini 2.0 Flash Fallback]
-    G2 -->|Fail| Offline[Smart Header Extraction from Manual]
+    Inject --> API{"Gemini 2.5 Flash API Available?"}
+    API -->|Success| MD["Render Rich Markdown Response"]
+    API -->|"Fail - Retry"| G2["Gemini 2.0 Flash Fallback"]
+    G2 -->|Fail| Offline["Smart Header Extraction from Manual"]
     Offline --> MD
     Deny --> MD
-    MD --> User([Display to User with marked.js])
+    MD --> User(["Display to User with marked.js"])
 ```
 
 **Key capabilities:**
