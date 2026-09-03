@@ -1,4 +1,4 @@
-# 🏗️ Enterprise Construction MIS — Procurement, Sub-Contractor & Multi-Tier Approval Platform
+# 🏗️ Enterprise Construction MIS — Procurement, Sub-Contractor & Approval Workflow Platform
 
 [![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
 [![PHP](https://img.shields.io/badge/PHP-7.4%20%7C%208.x-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://www.php.net/)
@@ -7,7 +7,7 @@
 [![AI](https://img.shields.io/badge/AI-RAG--Lite_Gemini_Chatbot-orange?style=for-the-badge&logo=google)]()
 [![Status](https://img.shields.io/badge/Status-Production_Case_Study-blue?style=for-the-badge)]()
 
-> 🔒 **Confidentiality Notice:** This is an anonymized technical case study of a production enterprise Construction MIS built for a real estate & civil engineering organization. Client names, credentials, production database seeds, and private API hostnames have been removed per NDA.
+> 🔒 **Confidentiality Notice:** This is an anonymized technical case study of a production enterprise Construction MIS built for a real estate & civil engineering organization. Specific implementation details, internal credentials, client data, and proprietary architecture have been omitted per NDA.
 
 ---
 
@@ -16,11 +16,11 @@
 1. [Business Context & Problem Statement](#-1-business-context--problem-statement)
 2. [Platform Modules Overview](#-2-platform-modules-overview)
 3. [System Architecture](#-3-system-architecture)
-4. [MIS Module — The Core Procurement Engine](#-4-mis-module--the-core-procurement-engine)
+4. [MIS Module — Core Procurement Engine](#-4-mis-module--core-procurement-engine)
 5. [Accounts Module — Financial Operations](#-5-accounts-module--financial-operations)
 6. [HRM Module — Human Resources Management](#-6-hrm-module--human-resources-management)
 7. [Admin Module — System Configuration & Access Control](#-7-admin-module--system-configuration--access-control)
-8. [Database Design & FIFO Stock Engine](#-8-database-design--fifo-stock-engine)
+8. [FIFO Inventory Engine](#-8-fifo-inventory-engine)
 9. [AI-Powered Hybrid ERP Chatbot](#-9-ai-powered-hybrid-erp-chatbot)
 10. [Key Engineering Challenges & Solutions](#-10-key-engineering-challenges--solutions)
 11. [Tech Stack](#-11-tech-stack)
@@ -30,36 +30,42 @@
 
 ## 📌 1. Business Context & Problem Statement
 
-A construction and real estate company managing multiple active projects across different geographic branches needed to replace fragmented, paper-based processes with a centralized digital platform. Key pain points:
+A construction and real estate organization managing multiple active projects across different geographic branches required a centralized digital platform to replace fragmented, paper-based processes.
 
-| Pain Point | Impact |
+### Key Pain Points
+
+| Pain Point | Business Impact |
 |---|---|
-| Manual Requisition → PO → WO handoffs | Weeks of delays per procurement cycle |
-| No real-time budget-vs-spend tracking | BOQ overruns going undetected |
-| Paper-based sub-contractor billing | Retention & advance ledgers miscalculated |
-| No cross-site inventory visibility | Material double-ordering & stock wastage |
-| No audit trail for financial disbursements | Compliance & fraud risk |
-| Manual salary & overtime calculation | HR errors and disputes |
+| Manual, paper-based requisition and approval handoffs | 2–3 weeks per procurement cycle |
+| No real-time budget vs. spend visibility | BOQ overruns discovered only after the fact |
+| Informal sub-contractor billing | Advance and retention ledgers miscalculated |
+| No cross-site inventory visibility | Material double-ordering and site wastage |
+| Zero audit trail on financial disbursements | Compliance and fraud exposure |
+| Manual payroll and overtime calculation | Recurring HR disputes and errors |
 
-**The solution:** A full-stack enterprise ERP with **4 major modules** — MIS (Construction Management), Accounts, HRM, and Admin — covering the entire project lifecycle from BOQ budgeting through to financial reporting.
+### The Solution
+
+A full-stack enterprise ERP with **4 tightly integrated modules** — MIS (Construction & Procurement), Accounts, HRM, and Admin — covering the entire project lifecycle from initial budgeting through to financial statement generation.
 
 ---
 
 ## 🏢 2. Platform Modules Overview
 
 ```
-┌──────────────────────────────────────────────────────┐
-│              Construction ERP Platform               │
-├──────────────┬──────────────┬──────────┬─────────────┤
-│  MIS Module  │   Accounts   │   HRM    │    Admin    │
-│  /apps/      │  /accounts/  │  /apps/  │  /admin/   │
-├──────────────┼──────────────┼──────────┼─────────────┤
-│ Procurement  │ Payments     │ Employee │ User RBAC   │
-│ BOQ/CS/PO/WO │ JV Vouchers  │ Salary   │ Menu Config │
-│ Inventory    │ Ledgers      │ Overtime │ Role Mgmt   │
-│ Sub-contract │ Fin. Reports │ Bonus    │ Company     │
-│ Project Mgmt │ Trial Balance│ Gratuity │ Branch      │
-└──────────────┴──────────────┴──────────┴─────────────┘
+┌──────────────────────────────────────────────────────────┐
+│              Enterprise Construction ERP                 │
+├──────────────┬──────────────┬───────────┬───────────────┤
+│  MIS Module  │   Accounts   │    HRM    │     Admin     │
+├──────────────┼──────────────┼───────────┼───────────────┤
+│ Procurement  │ Vouchers     │ Employee  │ User & Roles  │
+│ BOQ & Budget │ Payments     │ Payroll   │ Menu & Access │
+│ CS & PO & WO │ JV Posting   │ Overtime  │ Company Setup │
+│ GRN & Bills  │ Ledgers      │ Bonus     │ Branch & Area │
+│ Sub-contract │ Fin. Reports │ Gratuity  │ Role-based    │
+│ Inventory    │ Trial Balance│ Incentive │ Access Matrix │
+│ Consumption  │ Balance Sheet│ HRM Rpts  │ DB Backup     │
+│ 31 Reports   │ 15 Reports   │           │               │
+└──────────────┴──────────────┴───────────┴───────────────┘
 ```
 
 ---
@@ -69,33 +75,32 @@ A construction and real estate company managing multiple active projects across 
 ```mermaid
 graph TB
     subgraph PresentationLayer["Presentation Layer"]
-        A["Blade UI + AJAX"] --> B["MIS Panel /apps/"]
-        A --> C["Accounts Panel /accounts/"]
-        A --> D["Admin Panel /admin/"]
+        A["Blade UI + AJAX"] --> B["MIS Panel"]
+        A --> C["Accounts Panel"]
+        A --> D["Admin Panel"]
         A --> E["AI Chatbot Widget"]
     end
 
     subgraph AuthSecurity["Auth and Security"]
-        F["userAuth Middleware"]
-        G["RBAC: SoftwareMenu + InternalLink Access"]
-        H["Project-Scoped Data Gate: CtProjectUserAssignment"]
-        I["Role-based Access: adminAccess / userAccess / projectAccess"]
+        F["Multi-Guard Authentication Middleware"]
+        G["Dynamic RBAC: Module, Menu, Action Level"]
+        H["Project-Scoped Data Isolation per User"]
     end
 
     subgraph DomainEngines["Domain Engines — 80+ Controllers"]
-        J["MIS Engine: Requisition, CS, PO, WO, Inventory"]
-        K["Sub-Contractor Engine: CS, Agreement, Bill, Payment"]
-        L["Accounts Engine: Payment, JV, Ledger, Vouchers"]
-        M["Reporting Engine: 46+ Report Types"]
+        J["MIS Engine: Procurement, Inventory, Approvals"]
+        K["Sub-Contractor Engine: CS, Agreement, Bills"]
+        L["Accounts Engine: Payments, Vouchers, Ledgers"]
+        M["Reporting Engine: 46+ Report Types with PDF export"]
         N["HRM Engine: Payroll, Overtime, Bonus, Gratuity"]
-        O["Admin Engine: RBAC, Company, Branch, Roles"]
+        O["Admin Engine: RBAC, Company, Roles, Menus"]
         P["AI Chatbot Engine: RAG-Lite Hybrid"]
     end
 
     subgraph PersistenceLayer["Persistence Layer"]
-        Q[("MySQL InnoDB — 195+ Models, 50+ Tables")]
+        Q[("MySQL InnoDB — Normalized Relational Schema")]
         R[("Document and Attachment Storage")]
-        S[("Cache — Manual JSON Knowledge Base")]
+        S[("Application Cache")]
     end
 
     PresentationLayer --> AuthSecurity --> DomainEngines
@@ -104,456 +109,363 @@ graph TB
 
 ---
 
-## 🔧 4. MIS Module — The Core Procurement Engine
+## 🔧 4. MIS Module — Core Procurement Engine
 
-The MIS module drives the entire construction procurement and project management lifecycle.
+The MIS module drives the full construction procurement and project management lifecycle.
 
 ### 4.1 BOQ (Bill of Quantities) & Budget Management
 
-- Granular item-level quantity estimation and rate setup per project
-- BOQ Summary generation with attachment support
-- Real-time deviation tracking: allocated BOQ vs. cumulative purchase orders
+- Item-level quantity estimation and unit rate setup per project and PO
+- BOQ summary and detail view with attachment support
+- Real-time deviation tracking: allocated budget vs. cumulative orders placed
 
 ### 4.2 Material Requisition — 5-Stage Approval Workflow
 
-Every material requisition follows a strict, role-enforced approval chain:
+Every material requisition is subject to a strict, role-enforced multi-tier approval chain before any procurement action can be taken:
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Draft: Site Engineer creates Requisition
-    Draft --> PendingPM: Submit for Approval
-    PendingPM --> PMApproved: Project Manager Reviews and Approves
-    PMApproved --> PCApproved: Project Coordinator Reviews and Approves
-    PCApproved --> COOApproved: COO gives Final Approval
-    PMApproved --> Rejected: Rejected with Remarks
-    PCApproved --> Rejected: Rejected with Remarks
-    COOApproved --> CSReady: Approved — CS Process Begins
-    Rejected --> Draft: Correction and Resubmit
+    [*] --> Draft: Site Engineer creates requisition
+    Draft --> PendingPM: Submitted for Approval
+    PendingPM --> PMApproved: Project Manager reviews and approves
+    PMApproved --> PCApproved: Project Coordinator reviews and approves
+    PCApproved --> COOApproved: COO gives Final Authorization
+    PMApproved --> Rejected: Returned with remarks
+    PCApproved --> Rejected: Returned with remarks
+    COOApproved --> ReadyForCS: Approved — Comparative Statement Process Begins
+    Rejected --> Draft: Correction and resubmission
 ```
 
-| Status Code | Stage | Role |
-|---|---|---|
-| `0` | Draft | Site Engineer |
-| `1` | Submitted | Pending PM Review |
-| `2` | PM Approved | Awaiting PC Review |
-| `3` | PC / Engineer Approved | CS Assigned, Supplier Selected |
-| `4` | COO Final Approval | Procurement Cleared |
+Each approval step is recorded in an immutable audit log capturing the reviewer's identity, timestamp, action taken, and remarks.
 
 ### 4.3 Comparative Statement (CS) Engine
 
-After PM approval, the procurement team conducts competitive vendor evaluation:
+After approval, the procurement team conducts a structured, competitive vendor evaluation:
 
-- **Material CS (`ComparativeStatementController`):** Multi-supplier price comparison per item. Evaluates unit price, payment terms, and delivery schedules.
-- **Sub-Contractor CS (`SubContractorContractCSController`):** Task-rate comparison across civil/labour contractors. Each CS line item records individual supplier quotes.
-- **CS Approval Flow:** CS goes through a dedicated vetting/check stage (`ScContractCsCheck`) before a supplier is confirmed.
-- **Reversal Support:** A CS can be reversed with an audit remark stored in `ScContractCsCheck` (`remarks LIKE 'REVERSED:%'`).
+**Material CS:**
+Multi-supplier quote comparison on a per-item basis. Each vendor quote captures unit price, payment terms, and delivery lead time. A committee review stage validates and finalizes the selected supplier and agreed rate before a Purchase Order can be raised.
+
+**Sub-Contractor CS:**
+Task-rate comparison across specialized civil and labour contractors. Supports multi-party quotation matrices evaluated on scope, rate, and capability. Reversals are tracked with audit remarks.
 
 ### 4.4 Purchase Order (PO) & Work Order (WO) Lifecycle
 
-After CS approval, a PO/WO is generated:
+After CS finalization, a Purchase Order or Work Order is generated against the confirmed supplier:
 
-- `purchase_order_master` stores both material POs and Work Orders (`is_non_cs` flag distinguishes direct vs. CS-based)
-- Each WO tracks: supplier, advance amount, order date, and item-level details
+- Tracks supplier, confirmed rate, advance amount, item breakdown, and order date
+- Supports both CS-based orders and direct (non-CS) emergency purchases
 
 **Work Order Approval (3-Stage):**
 
-| `approved_status` | Meaning |
+| Stage | Meaning |
 |---|---|
-| `0` | Pending WO Approval |
-| `1` | WO Approved |
-| `2` | WO Rejected / Sent Back |
+| Pending | Awaiting authorization |
+| Approved | Work Order authorized for execution |
+| Rejected | Returned with remarks — full pipeline reset |
 
-**On WO Approval — Automatic Actions (single `DB::transaction`):**
-1. Update `requisition_master`: `wo_approval_status`, approver, timestamp
-2. Update `purchase_order_master`: `approved_status`, `approved_by`, `approved_date`
-3. Create immutable `WorkOrderApprovalLog` entry
-4. If `advance_amount > 0`: Auto-generate `BillCreate` (Supplier Advance) record
-5. Auto-generate `IndentInfo` for the payment pipeline
+On **approval**, the system atomically:
+- Updates the requisition and work order records with approver and timestamp
+- Logs an immutable approval audit entry
+- Auto-generates a supplier advance payable record if an advance was agreed
 
-**On WO Rejection — Full Cascade Reset:**
-```php
-DB::table('requisition_details')->update([
-    'purchase_cs_status' => 0,
-    'purchase_create' => 0,
-    'purchase_cs_supplier_id' => null,
-    'purchase_cs_price' => null,
-    'is_non_cs' => 0
-]);
-// + IndentInfo approve_status reset to 2 (Reversed)
-```
+On **rejection**, a cascading reset atomically reverses all CS assignments, supplier selections, agreed prices, and advance records on every affected line item — returning the document to draft state.
 
-### 4.5 Purchase Receive (GRN — Goods Receipt Note)
+All these actions execute within a single database transaction: either every update commits together, or a full rollback occurs on any failure.
 
-`ProPurchaseReceiveController` (53KB — the largest controller):
-- Receive materials against approved POs
-- Records batch-level quantity and unit cost into `StockFifo`
+### 4.5 Goods Receipt Note (GRN)
+
+Records the physical receipt of materials against approved orders:
+
 - Supports partial deliveries and multi-batch receives
-- Triggers stock ledger updates and links to `PurchaseMaster`
+- Each batch received is logged with quantity and unit cost into the FIFO stock engine
+- Linked back to the originating order for three-way matching validation
 
-### 4.6 Bill Vetting & CEO/COO Final Bill Approval
+### 4.6 Bill Vetting & COO Final Bill Approval — 5-Stage Pipeline
 
-After goods receive, supplier bills go through a 5-stage financial vetting pipeline:
+After goods receipt, supplier invoices go through a multi-stage financial vetting process before funds are disbursed:
 
 ```mermaid
 stateDiagram-v2
-    [*] --> BillDraft: Bill Created on GRN
-    BillDraft --> PMCheck: Submit to PM
-    PMCheck --> AccountsCheck: PM Approves
-    AccountsCheck --> PCCheck: Accounts Verifies
-    PCCheck --> COOApproval: PC Forwards to COO
-    COOApproval --> JVPosted: COO Approves — Auto JV Posted
-    PMCheck --> Returned: Rejected — Returned
-    AccountsCheck --> Returned: Rejected — Returned
-    Returned --> BillDraft: Correction and Resubmit
+    [*] --> BillDraft: Bill auto-created on Goods Receipt
+    BillDraft --> PMCheck: Submitted to Project Manager
+    PMCheck --> AccountsCheck: PM approved — forwarded to Accounts
+    AccountsCheck --> PCCheck: Accounts verified — forwarded to PC
+    PCCheck --> COOApproval: PC reviewed — forwarded to COO
+    COOApproval --> JVPosted: COO approved — JV auto-posted to ledger
+    PMCheck --> Returned: Rejected with remarks
+    AccountsCheck --> Returned: Rejected with remarks
+    Returned --> BillDraft: Correction and resubmission
 ```
 
-| `billstatus` | Stage |
-|---|---|
-| `1` | Bill Initiated |
-| `2` | PM Approved — Forwarded to Accounts |
-| `3` | Accounts Checked — Forwarded to COO |
-| `4` | Sub-Contractor Bill Stage |
+On COO approval, the system automatically generates balanced **double-entry journal voucher** entries against configured account codes — eliminating all manual bookkeeping for procurement transactions.
 
-**On COO/CEO Approval — Automatic Double-Entry JV Posting:**
-
-For Material Bills (`bill_for = 1`):
-```
-DR  WIP Material Account   →  per-category purchase total   (wip_material config)
-CR  A/P Supplier Account   →  grand total                   (acc_payable_supplier config)
-+ Creates PurchaseMaster (SPB type) + PurchaseLedger entry
-```
-
-For Sub-Contractor Bills (`bill_for = 2`):
-```
-DR  WIP Contractor Account →  bill amount   (wip_contractor config)
-CR  A/P Contractor Account →  bill amount   (acc_payable_contractor config)
-+ Creates SubContractorBillLeadger (ledger_type = 1: Bill)
-```
-
-**Contract Overrun Guard:**
-```php
-$due_bill = $total_agreement_value - SUM(previously_approved_bills);
-if ($new_bill_amount > $due_bill) {
-    return response()->json(['message' => 'Bill exceeds remaining contract value'], 422);
-}
-```
+A built-in **contract overrun guard** prevents COO approval if the bill amount would exceed the remaining payable balance under the associated contractor agreement.
 
 ### 4.7 Sub-Contractor Full Lifecycle
 
-A dedicated sub-flow for specialized civil and labour contractors:
+A dedicated procurement sub-flow manages the complete lifecycle of specialized civil and labour contractors:
 
 ```
 Sub-Contractor Registration
-    └── Sub-Contractor CS (Quote Comparison)
-            └── Agreement Creation (WBS + Retention %)
-                    ├── Running Bill Submission (ct_contractor_bill)
-                    │       └── Bill Approval → JV Posting
-                    ├── Advance Payment (sub_contractor_bill_leadger, ledger_type = 3)
-                    └── Final Payment with Retention Release
+    └── Competitive Quotation (Sub-Contractor CS)
+            └── Agreement Creation (WBS, Retention %, Advance Terms)
+                    ├── Running Bill Submission
+                    │       └── Bill Vetting → COO Approval → JV Auto-Posting
+                    ├── Advance Payment (with automatic recovery scheduling)
+                    └── Final Payment (with Retention Release)
 ```
 
-- **Agreement Controller** (`SubContractorAgreementController`, 1005 lines): Manages WBS-based contracts, retention money rules, and advance recovery schedules.
-- **Running Bill Controller** (`SubContractorBillController`): Generates running bills, deducts mobilization advance amortization and retention holdbacks automatically.
-- **Payment Controller** (`SubContractorContractPriceController`): Handles milestone-based final payments.
+Running bills automatically deduct:
+- Mobilization advance amortization (recovered proportionally)
+- Retention money (security holdback per agreement terms)
+- Any site damage or penalty adjustments
 
 ### 4.8 Material Consumption
 
-`ProductConsumptionController` — Tracks how materials are consumed on site:
+Tracks how materials are drawn from site stock and consumed in construction activities:
 
-- Records consumption per project, per PO, per product
-- Deducts from FIFO stock batches (oldest batch first)
-- Generates `ConsumptionMaster` + `ConsumptionDetails` records
-- Cross-references against `StockLedger` and `StockLedgerSummary`
-- Stores consumption history in `StockLedgerHistoryMaster` + `StockLedgerHistoryDetails`
+- Site staff record item-wise consumption per work category
+- The FIFO engine deducts from the oldest available stock batch first
+- Full consumption history is maintained for project cost reconciliation
 
 ### 4.9 Inter-Project Stock Transfer
 
-`StockTransferController` — Transfers materials between construction sites:
+Enables materials to be transferred between construction sites to balance inventory:
 
-- Source project releases from its FIFO stock (outward `StockFifo` deduction)
-- Destination project receives into its FIFO stock (inward `StockFifo` creation)
-- Transfer verified and confirmed by receiving site
-- Full audit trail with dispatch and receiving records
+- Source project releases from its FIFO stock (outward deduction)
+- Destination project receives into its FIFO stock (inward batch creation)
+- Transfer requires confirmation from the receiving site
+- Full dispatch-and-receipt audit trail maintained
 
 ### 4.10 MIS Reports (31 Report Types)
 
-| Report | Controller |
+Comprehensive reporting covering the full procurement and inventory lifecycle:
+
+| Category | Report Types |
 |---|---|
-| Order Sheet (Project-wise procurement summary) | `OrderSheetReportController` |
-| Purchase Report (by supplier, date, product) | `PurchaseReportController` |
-| Raw Material Purchase Report | `RawMaterialPurchaseReportController` |
-| Inventory Hand Upto Date | `InventoryHandUptoDateController` |
-| Inventory Report | `InventoryReportController` |
-| Stock Movement by Product | `StockMovementProductController` |
-| Stock Movement by Product Group | `StockMovementProGroupController` |
-| Stock Receiving Report | `StockReceivingReportController` |
-| Stock Summary Report | `StockSummeryReportController` |
-| Stock Details Report | `StockDetailsReportController` |
-| Stock Products History Report | `StockProductsHistoryReportController` |
-| Stock Transfer Report | `stockTransferringReportController` |
-| Consumption List Report | `ConsumptionListReportController` |
-| Project Details Report | `ProjectDetailsReportController` |
-| Project Income vs Expense Report | `ProjectIncomeExpenseReportController` |
-| Project Estimation Report | `ProjectEstimationController` |
-| Due Collection Report | `DueCollectionReportController` |
-| Contractor Bill Report | `ContractorBillReportController` |
-| Contractor Payment Report | `ContractorPaymentReportController` |
-| Supplier Bill Report | `SupplierBillReportController` |
-| Supplier Payment Report | `SupplierPaymentReportController` |
-| Invoice Report | `InvoiceReportController` |
-| Sales Reports (Customer-wise, Month-wise) | `SalesReportController`, `SalesListCustomerWiseReportController` |
-| Purchase Advance Report | `MyPurchaseAdvanceReportController` |
+| **Procurement** | Order Sheet, Purchase Summary, Raw Material Purchase, Purchase Advance |
+| **Inventory** | Stock Summary, Stock Details, Inventory Hand Upto Date, Stock Receiving |
+| **Stock Movement** | Movement by Product, Movement by Product Group, Stock History, Transfer Report |
+| **Consumption** | Consumption List, Consumption by Project |
+| **Project Finance** | Project Details, Project Income vs. Expense, Project Estimation |
+| **Supplier & Contractor** | Supplier Bill, Supplier Payment, Contractor Bill, Contractor Payment |
+| **Collections** | Due Collection, Invoice Report, Sales Reports |
+
+All reports support on-screen view and PDF export.
 
 ---
 
 ## 💰 5. Accounts Module — Financial Operations
 
-The Accounts module (`/accounts/` prefix, EW namespace) manages all financial transactions, payments, ledgers, and statutory financial reports.
+The Accounts module manages all financial transactions, payment processing, ledgers, and statutory financial reporting across the organization.
 
 ### 5.1 Voucher Management
 
-| Voucher Type | Controller |
+Nine types of financial vouchers are supported:
+
+| Voucher Type | Purpose |
 |---|---|
-| Payment Voucher (Cash) | `PaymentVoucherController` |
-| Received Voucher (Cash) | `ReceivedVoucherController` |
-| Bank Payment Voucher | `BankPaymentVoucherController` |
-| Bank Received Voucher | `BankReceivedVoucherController` |
-| Journal Voucher (General) | `JournalVoucherController` |
-| Journal Voucher (Employee) | `JournalVoucherEMController` |
-| Journal Voucher (Sub-Contractor) | `JournalVoucherSCController` |
-| Journal Voucher (CMR) | `JournalVoucherCMRController` |
-| Journal Voucher (Bill) | `JournalVoucherBillController` |
+| Cash Payment Voucher | Cash disbursements |
+| Cash Receipt Voucher | Cash receipts |
+| Bank Payment Voucher | Bank-based payments |
+| Bank Receipt Voucher | Bank-based receipts |
+| General Journal Voucher | Manual accounting entries |
+| Employee Journal Voucher | Employee-related adjustments |
+| Sub-Contractor Journal Voucher | Contractor-specific entries |
+| Bill Journal Voucher | Bill-related postings |
+| CMR Journal Voucher | Cash/Memo/Return adjustments |
 
 ### 5.2 Payment Processing
 
-| Payment Type | Controller |
+| Payment Type | Description |
 |---|---|
-| Supplier Payment (Post-bill clearance) | `SupplierPaymentController` |
-| Supplier Advance Payment | `SupplierAdvancePaymentController` |
-| Purchase Payment (Direct) | `PurchasePaymentController` |
-| Sub-Contractor Payment | `SubContractorPaymentController` |
-| Sub-Contractor Advance | `SubContractorAdvanceController` |
-| Employee Advance Request | `AdvanceForRequestController` |
-| Project Advance | `ProjectAdvanceController` |
-| Project Due Collection | `ProjectDueCollectionController` |
+| Supplier Payment | Final settlement after bill approval |
+| Supplier Advance Payment | Pre-delivery advance against Work Orders |
+| Direct Purchase Payment | Direct payment without GRN pipeline |
+| Sub-Contractor Payment | Milestone-based contractor payment |
+| Sub-Contractor Advance | Mobilization advance disbursement |
+| Employee Advance | Staff cash advance requests |
+| Project Advance | Project-level advance drawdowns |
+| Due Collection | Client invoice collection and reconciliation |
 
 ### 5.3 WIP to Expense Conversion
 
-When a project milestone is completed, WIP (Work-in-Progress) asset accounts are converted to expense accounts:
+As project milestones are completed, Work-in-Progress (WIP) asset balances are transferred to operational expense accounts:
 
-- `AccountWIPConfigurationController`: Maps project PO categories to WIP account codes
-- `AccountWIPToExpenseController`: Transfers WIP balance to operational expense — creates balancing JV entries automatically
+- Account-level WIP configuration maps project categories to WIP codes
+- WIP-to-Expense conversion creates balanced journal entries automatically
+- Ensures correct financial period reporting as project costs are realized
 
 ### 5.4 Financial Reports (15 Report Types)
 
-| Report | Controller |
+Full statutory and management reporting:
+
+| Category | Report Types |
 |---|---|
-| Trial Balance | `TrialBalanceController` |
-| Balance Sheet | `BalanceSheetController` |
-| Receipts & Payments | `ReceiptsPaymentsController` |
-| Ledger Query (General) | `LedgerQueryController` |
-| Ledger Query (3rd Party) | `LedgerQuery3rdController` |
-| Cash Book | `CashBookController` |
-| Bank Book | `BankBookController` |
-| Accounts Payable | `AccountsPayableController` |
-| Accounts Receivable | `AccountsReceivableController` |
-| Supplier Statement | `SupplierStatementController` |
-| Contractor Statement | `ContractorStatementController` |
-| Customer Statement | `CustomerStatementController` |
-| Employee Purchase Advance Statement | `EmployeePurchaseAdvanceStatementController` |
-| Collectable Income / Expense | `CollectableIncomeController` / `CollectableExpenseController` |
-| Voucher Print | `PrintVoucherController` |
-
-### 5.5 Purchase Indent (Accounts-side approval)
-
-`PurchaseIndentController` in the Accounts module manages the **post-approval payment posting** for indented items — validating that approved bills get properly indented before any payment processing begins.
+| **Financial Statements** | Trial Balance, Balance Sheet, Receipts & Payments |
+| **Ledger Reports** | General Ledger Query, Third-Party Ledger Query |
+| **Cash & Bank** | Cash Book, Bank Book |
+| **Payable & Receivable** | Accounts Payable, Accounts Receivable |
+| **Party Statements** | Supplier Statement, Contractor Statement, Customer Statement |
+| **Employee** | Employee Purchase Advance Statement |
+| **Other** | Collectable Income/Expense, Voucher Print |
 
 ---
 
 ## 👥 6. HRM Module — Human Resources Management
 
-The HRM module (`HRM` namespace) handles the complete employee lifecycle from hiring to payroll.
-
 ### 6.1 Employee Management
-- `EmployeeBasicInfoController`: Employee profiles with department, designation, branch, and user assignments
-- `DesignationController` / `DepartmentController`: Organizational structure management
+Complete employee profiles with department, designation, branch, and system user account linkage.
 
 ### 6.2 Payroll Engine
-`MonthlySalaryConfigController` — Automated monthly payroll calculation:
+Automated monthly payroll covering:
 - Basic salary, house rent, medical, and allowance components
 - Advance deductions and loan recovery scheduling
-- Monthly payment ledger generation (`MonthlyConfigPaymentLeadger`)
-- Advance details tracking (`MonthlyConfigAdvanceDetails`)
+- Monthly salary slips and payroll summary reports
 
 ### 6.3 Overtime Management
-- `OvertimeController` / `NewOverTimeController`: Records daily overtime hours, calculates overtime pay at configured rates
-- Integrates with monthly salary processing
+- Daily overtime recording with configurable pay rates
+- Automatic integration into monthly salary processing
 
 ### 6.4 Bonus, Incentive & Gratuity
-- `BonusController`: Festival/performance bonus disbursement with per-employee allocation
-- `IncentiveController`: Target-based incentive tracking
-- `GratuityController`: End-of-service gratuity calculation based on service tenure
-
-### 6.5 HRM Reports
-- `MonthlySalaryConfigReportController`: Month-wise payroll summary and individual payslips
+- Festival and performance bonus disbursement with individual allocation records
+- Target-based incentive tracking
+- End-of-service gratuity calculation based on service tenure per company policy
 
 ---
 
 ## ⚙️ 7. Admin Module — System Configuration & Access Control
 
-The Admin module (`/admin/` prefix) is the central control plane for the entire platform.
-
-### 7.1 User & Employee Management
-- **User accounts**: Create, assign project access, set login credentials, manage session state
-- **Role management** (`employeeRoll`): Define named roles with bundled permissions
-- **Role-based access**: `EmployeeRollAccessController` assigns predefined permission bundles to users
-
-### 7.2 Dynamic RBAC (3-Layer Authorization)
+### 7.1 Dynamic RBAC (3-Layer Authorization)
 
 ```
-Layer 1 — Authentication Guard
-    ├── userAuth guard   → MIS and Accounts panels
-    └── adminAuth guard  → Software Admin panel
+Layer 1 — Authentication
+    ├── Project User Panel (MIS + Accounts access)
+    └── Software Admin Panel (system-level configuration)
 
-Layer 2 — Menu and Module Access
-    ├── SoftwareModules (top-level module visibility)
-    ├── SoftwareMenu (sidebar menu items)
-    ├── SoftwareInternalLink (individual CRUD actions)
-    └── Middleware: userAccess checks every request
+Layer 2 — Menu and Action Permissions
+    ├── Module-level visibility
+    ├── Sidebar menu item access
+    ├── Individual action permissions (create, edit, delete, view)
+    └── Middleware validates every request against the user's permission set
 
-Layer 3 — Data Scoping
-    └── CtProjectUserAssignment
-        → Non-admin users see ONLY their assigned projects
-        → Prevents horizontal privilege escalation across branches
+Layer 3 — Data Scope
+    └── Each non-admin user is restricted to only the projects they
+        are explicitly assigned to — preventing cross-branch data leakage
 ```
+
+### 7.2 Role Management
+Predefined named roles bundle sets of permissions. Individual users can inherit a role's permission set, which can then be further customized per user.
 
 ### 7.3 Organization Setup
-- **Branch Management** (`BranchController`): Geographic branch configuration
-- **Area Management** (`AreaController`): Sub-branch area definitions
-- **Company Profile** (`CompanyProfileController`): Logo, address, fiscal settings
-- **Salary Configuration** (`CompanySalaryConfigController`): Global payroll rules (pay scale, allowance %)
-- **Currency Setup** (`CurrencySetupController`): Multi-currency support with default currency per project
-- **Dashboard Access Control** (`DashbaordAccessController`): Per-user dashboard widget visibility
+- Branch and area hierarchy configuration
+- Company profile and branding settings
+- Global salary structure and policy rules
+- Multi-currency support with per-project default currency
+- Dashboard widget visibility control per user
 
-### 7.4 Menu & Sorting Configuration
-- `MenuController` + `SoftwareMenuController`: Drag-and-drop menu ordering with priority-based rendering
-- `AdminMenuController`: Software Admin panel menu management
-- Database backup utility available to authorized admin users
+### 7.4 Menu & Navigation Configuration
+Drag-and-drop menu ordering with priority-based rendering. Separate menu trees for Admin and User panels.
 
 ---
 
-## 🗄️ 8. Database Design & FIFO Stock Engine
+## 📦 8. FIFO Inventory Engine
 
-### Entity Relationship Summary
+The inventory engine records every material movement with its exact unit purchase cost. Valuations are always computed against the oldest available stock batch:
 
-```
-ct_projects (Project Registry)
-    └── ct_project_pos (PO Registry)
-            ├── requisition_master (Material Requisitions)
-            │       ├── requisition_details (Line Items: Products, CS Prices)
-            │       ├── requisition_approval_logs (Immutable Approval Audit)
-            │       └── purchase_order_master (Work Orders / POs)
-            │               ├── work_order_approval_logs (WO Audit Trail)
-            │               ├── bill_create (Bill Vetting Pipeline)
-            │               │       └── bill_approval_history (CEO Approval Log)
-            │               └── purchase_master → purchase_ledgers (Supplier Ledger)
-            │
-            ├── cs_master (Material Comparative Statements)
-            │       └── cs_details (Line-item Supplier Quotes)
-            │
-            └── sub_contractor_agreement (WBS Agreement)
-                    ├── sc_contract_cs_master (Sub-Contractor CS)
-                    │       └── sc_contract_cs_details (CS Line Items)
-                    ├── ct_contractor_bill (Running Bills)
-                    └── sub_contractor_bill_leadger (Ledger: Bill/Advance/Payment)
+**Inward (Goods Receipt):** A new batch record is created locking in the quantity received and exact unit cost at the time of receipt. The locked cost is never modified retroactively.
 
-stock_fifo (FIFO Inventory Engine)
-pro_purchase_receive (Goods Receipt Notes)
-consumption_master → consumption_details (Site Consumption)
-stock_ledger / stock_ledger_summary (Real-time Stock Position)
-ew_account_transactions (Double-Entry General Ledger)
-ew_chart_of_accounts (CoA)
-ew_account_configuration (Account Code Mapping)
-```
+**Outward (Consumption / Transfer):** Available batches are queried in chronological order. Deductions consume from the oldest batch first, ensuring true First-In-First-Out costing across all project sites.
 
-### FIFO Inventory Engine (`StockFifo` Model)
-
-Every material receipt creates a **locked batch** with its exact unit purchase price. Consumption always deducts from the **oldest available batch** first:
-
-```php
-// Inward: Record a new batch on Goods Receipt
-StockFifo::in([
-    'product_id'     => $productId,
-    'quantity'       => $receivedQty,   // stock_in = remaining_qty at creation
-    'purchase_price' => $unitCost,      // Locked at receipt — never changed
-    'ct_project_id'  => $projectId,
-    'po_id'          => $poId,
-    'invoice_date'   => $receiptDate,
-]);
-
-// Outward: Query batches for FIFO deduction (Consumption / Transfer)
-StockFifo::getBatchesForOut($productId, $branchId, $ctProjectId, $poId)
-// Groups by (product, price, invoice_date) → returns where (stock_in - stock_out) > 0
-// Application deducts from oldest batch first → exact FIFO costing
-```
+This approach guarantees that project cost reporting reflects actual, batch-level material costs rather than averages — critical for accurate project P&L and budget variance analysis.
 
 ---
 
 ## 🤖 9. AI-Powered Hybrid ERP Chatbot
 
-An intelligent, multilingual assistant embedded across all modules, built as a **RAG-Lite (Retrieval-Augmented Generation) Hybrid**:
+An intelligent, multilingual assistant embedded across all modules:
 
 ```mermaid
 flowchart TD
-    Q(["User Query: English, Bangla, or Banglish"]) --> C["ChatbotController — ask method"]
-    C --> KB["Load 64-module user_manual.json from Cache"]
-    KB --> Fuzzy["Keyword Fuzzy Scoring Engine"]
-    Fuzzy --> Match{"Module Matched?"}
+    Q(["User Query: English, Bangla, or Banglish"]) --> C["Chatbot Engine"]
+    C --> KB["Load Offline ERP Knowledge Base — 64 Module Entries"]
+    KB --> Fuzzy["Keyword Fuzzy Matching and Relevance Scoring"]
+    Fuzzy --> Match{"Relevant Module Found?"}
     Match -->|Yes| RBAC{"User has permission for this module?"}
     RBAC -->|No| Deny["Return: Access Restricted Message"]
-    RBAC -->|Yes| Inject["Inject module context into multi-turn session"]
+    RBAC -->|Yes| Inject["Inject module context into conversation history"]
     Match -->|No| Inject
-    Inject --> API{"Gemini 2.5 Flash API available?"}
+    Inject --> API{"Gemini Flash API Available?"}
     API -->|Success| MD["Render Rich Markdown Response"]
-    API -->|"Fail — Retry"| G2["Gemini 2.0 Flash Fallback"]
-    G2 -->|Fail| Offline["Smart Header Extraction from Manual"]
+    API -->|"Fail — Retry with backup model"| G2["Secondary Model Fallback"]
+    G2 -->|Fail| Offline["Smart Header Extraction — Offline Fallback"]
     Offline --> MD
     Deny --> MD
-    MD --> User(["Display to User via marked.js"])
+    MD --> User(["Response displayed with markdown rendering"])
 ```
 
-**Key capabilities:**
-- **Offline-First:** 100% functional without internet via structured manual extraction
-- **RBAC-Aware:** Will not explain restricted modules to unauthorized users
-- **Multi-turn Memory:** Remembers last 10 Q&A pairs per session
-- **Multilingual:** English, Bengali, and transliterated Banglish
+**Key Capabilities:**
+- **Offline-First:** Fully functional without internet using structured manual extraction
+- **Permission-Aware:** Guides users only on modules they are authorized to access
+- **Multi-turn Memory:** Maintains conversation context across multiple exchanges per session
+- **Multilingual:** Understands English, Bengali, and transliterated Banglish queries
 
 ---
 
 ## 💡 10. Key Engineering Challenges & Solutions
 
-| # | Challenge | Solution |
-|---|---|---|
-| **1** | **Multi-role, Multi-step Approval Chains** — Different projects needed different approval hierarchies: Site Engineer → PM → PC → COO for Requisitions, and a different chain for Bills. | Designed **configurable status-code state machines** on each document table. Middleware enforces role checks. Each approval stage is logged to immutable audit tables. |
-| **2** | **Atomic WO Approval with Auto Billing** — Approving a WO must simultaneously update 4+ tables or fully roll back. | Wrapped the entire pipeline in `DB::beginTransaction()` / `commit()` / `rollback()`. Any exception causes full reversal across all affected tables. |
-| **3** | **Contract Overrun Prevention** — COO needed automatic blocking if a bill exceeded the remaining payable contract value. | Pre-approval guard: `$due = agreement_value - SUM(prior_approved_bills)`. If `new_bill > $due` → HTTP 422 with specific overrun amount returned. |
-| **4** | **Cascading Rejection Reset** — WO rejection must atomically reset all CS assignments, supplier selections, and non-CS flags on every requisition line. | A single bulk `DB::table('requisition_details')->update([...])` resets 5 fields at once inside the same transaction. |
-| **5** | **Accurate FIFO Inventory Valuation** — Average costing across fluctuating market prices skewed project P&L reporting. | Custom `StockFifo` engine locks `purchase_price` per batch at receipt. Consumption queries group by `(product, price, invoice_date)` and deduct from oldest available batch first. |
-| **6** | **Project-Scoped Data Isolation** — Non-admin users must never see procurement data from other branches or projects. | Every query enforces `whereIn('ct_project_id', $assigned_project_ids)` sourced from `CtProjectUserAssignment`. Baked into base model's `scopeValid()`. |
-| **7** | **Double-Entry JV Auto-Posting** — Manual bookkeeping after every bill approval was error-prone and time-consuming. | CEO/COO bill approval triggers automated debit/credit pair generation using configurable account codes from `EwAccountConfiguration` — zero manual intervention. |
+### Challenge 1: Multi-Role, Multi-Step Approval Chains
+**Problem:** Different document types required different sequential approval hierarchies. Requisitions needed 5 roles (Site Engineer → PM → PC → COO), while bills needed their own chain (PM → Accounts → PC → COO). Any bypass or out-of-order action would compromise the financial control framework.
+
+**Solution:** Each document maintains a numeric status code representing its current approval stage. Middleware enforces the permitted transitions and the required role for each step. Every state change is committed to an immutable audit log table with approver identity, timestamp, and remarks — creating a tamper-proof chain of custody.
+
+---
+
+### Challenge 2: Atomicity Across Multi-Table Approval Actions
+**Problem:** Approving a Work Order requires updating multiple related records simultaneously. A partial failure mid-way would leave the system in an inconsistent state — for example, an advance payable record created without the corresponding order being marked approved.
+
+**Solution:** All approval actions are wrapped in a single database transaction. If any step fails, the entire operation rolls back atomically, leaving all affected records unchanged. This guarantees consistency even under concurrent load or unexpected errors.
+
+---
+
+### Challenge 3: Cascading Rejection Reset
+**Problem:** When a Work Order is rejected, all downstream records — including comparative statement assignments, confirmed supplier selections, agreed prices, and non-CS flags on every line item — must be simultaneously reverted to allow the procurement team to restart the process cleanly.
+
+**Solution:** A rejection triggers a single bulk update resetting all affected fields across all line items within the same atomic transaction. This eliminates partial resets and ensures the document returns to a clean, restartable draft state.
+
+---
+
+### Challenge 4: Contract Value Overrun Prevention
+**Problem:** The COO could not reliably know during bill approval whether the cumulative approved amount was approaching or exceeding the agreed contract value, risking over-payment to contractors.
+
+**Solution:** Before any bill approval is committed, the system calculates the remaining payable balance: `remaining = total_agreement_value − sum_of_previously_approved_bills`. If the new bill exceeds this remainder, the approval is automatically blocked and the exact overrun amount is returned in the response — no manual calculation required.
+
+---
+
+### Challenge 5: Accurate FIFO Material Costing
+**Problem:** Using average material costs across price-fluctuating shipments produced inaccurate project P&L and cost variance reports — a significant issue when material prices shift between procurement cycles.
+
+**Solution:** The FIFO engine locks the unit purchase cost at the time of each goods receipt batch. All subsequent consumption and transfer valuations draw from these locked batch costs, processing the oldest batches first. This produces exact, batch-level costing that accurately reflects real procurement expenditure in financial reports.
+
+---
+
+### Challenge 6: Project-Level Data Isolation
+**Problem:** Users from one branch or project could potentially access procurement data, stock records, or financial entries belonging to other projects — a critical compliance and confidentiality risk.
+
+**Solution:** A project assignment table governs which projects each non-admin user may access. Every data query for non-admin users is automatically filtered to their permitted project scope at the application layer. This isolation is enforced consistently across all modules without requiring developers to manually add filters to every query.
 
 ---
 
 ## 💻 11. Tech Stack
 
-| Layer | Tools & Technologies |
+| Layer | Technologies |
 |---|---|
-| **Backend Framework** | PHP 7.4 / 8.x, Laravel (MVC, Eloquent ORM, Custom Middleware, Events) |
-| **Database** | MySQL 8.x, InnoDB, `DB::transaction()`, `lockForUpdate()`, Raw SQL |
-| **Frontend** | Blade Templates, JavaScript ES6+, jQuery, AJAX, Bootstrap 4/5, Custom CSS |
-| **AI / NLP** | Google Gemini 2.5 Flash + 2.0 Flash (fallback), RAG-lite Fuzzy Keyword Engine |
-| **Architecture** | Modular Monolith, Status-Code State Machines, Event-driven JV Posting |
-| **Dev Tools** | Composer, Git, Webpack Mix, Artisan CLI, Postman, PDF Generation |
+| **Backend** | PHP 7.4 / 8.x, Laravel Framework (MVC, Eloquent ORM, Middleware, Events) |
+| **Database** | MySQL 8.x (InnoDB, normalized relational schema, database transactions) |
+| **Frontend** | Blade Templates, JavaScript (ES6+), jQuery, AJAX, Bootstrap 4/5 |
+| **AI / NLP** | Google Gemini Flash (primary) with secondary model fallback, custom RAG-lite keyword engine |
+| **Architecture** | Modular Monolith, State-Machine Approval Flows, Event-driven JV Auto-Posting |
+| **Tooling** | Composer, Git, Webpack, Artisan CLI, Postman, PDF Generation Library |
 
 ---
 
@@ -562,11 +474,11 @@ flowchart TD
 | Metric | Before | After |
 |---|---|---|
 | Procurement Cycle Time | 2–3 weeks (manual) | 2–3 days (digital) |
-| Approval Chain Visibility | None | 100% real-time, logged per stage |
-| Duplicate / Over-payment Risk | High | Eliminated by contract guard |
-| Inventory Valuation Accuracy | Estimated averages | Exact FIFO per batch |
-| Financial Report Generation | Hours (manual Excel) | Seconds (live queries) |
-| HR Payroll Errors | Manual calculation errors | Automated, consistent |
+| Approval Visibility | None | 100% logged per stage with timestamps |
+| Over-payment Risk | High — no automated checks | Eliminated by contract guard |
+| Inventory Valuation | Estimated averages | Exact FIFO batch-level costing |
+| Financial Report Generation | Hours (manual Excel) | Seconds (live database queries) |
+| Payroll Processing | Manual calculation, error-prone | Automated, consistent, auditable |
 
 ---
 
