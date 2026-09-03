@@ -1,13 +1,15 @@
 # 🏗️ Enterprise Construction MIS — Procurement, Approval Workflow & Financial Operations
 
-[![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
-[![PHP](https://img.shields.io/badge/PHP-7.4%20%7C%208.x-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://www.php.net/)
+[![Laravel](https://img.shields.io/badge/Laravel_9.x-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
+[![PHP](https://img.shields.io/badge/PHP_8.2-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://www.php.net/)
 [![MySQL](https://img.shields.io/badge/MySQL-Relational%20%7C%20FIFO%20Costing-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://www.mysql.com/)
 [![Status](https://img.shields.io/badge/Status-Anonymized_Case_Study-blue?style=for-the-badge)]()
 
 ---
 
 ## 🔒 Confidential Production Project
+
+> **Project Scope:** Production enterprise application supporting procurement, inventory management, financial operations, contractor lifecycle management, HR workflows, and role-based administration across multiple concurrent construction projects.
 
 This repository contains an **anonymized technical case study** based on a production enterprise Construction Management Information System (MIS).
 
@@ -344,9 +346,9 @@ This approach guarantees project cost reports reflect actual, batch-level materi
 
 ---
 
-## 🤖 9. AI-Powered Contextual Assistant
+## 🤖 9. AI-Assisted Contextual Assistant
 
-An intelligent multilingual assistant embedded across all modules:
+An AI-assisted multilingual help system embedded across all modules, developed by integrating an LLM API with a custom retrieval and fallback layer:
 
 ```mermaid
 flowchart TD
@@ -380,7 +382,7 @@ flowchart TD
 ### Challenge 1: Multi-Role, Multi-Step Approval Chains
 **Problem:** Different document types required different sequential approval hierarchies with distinct role requirements at each stage. Any bypass or out-of-order action would undermine the financial control framework.
 
-**Solution:** Each document maintains a status code representing its current approval stage. The application layer enforces permitted transitions and required roles. Every state change is committed to an append-only audit log — creating a tamper-proof chain of custody.
+**Solution:** Each document maintains a status code representing its current approval stage. The application layer enforces permitted transitions and required roles. Every state change is appended to an audit log table — creating a traceable, append-only chain of custody for every approval action.
 
 ---
 
@@ -415,7 +417,7 @@ flowchart TD
 ### Challenge 6: Project-Level Data Isolation
 **Problem:** Without strict scoping, users from one branch could access procurement, inventory, or financial records belonging to other projects — a compliance and confidentiality risk.
 
-**Solution:** A project assignment layer governs which projects each non-admin user may access. Every data query for non-admin users is automatically scoped to their permitted projects at the application layer — enforced consistently across all modules.
+**Solution:** A project assignment table governs which projects each non-admin user may access. Throughout the application, non-admin user queries are scoped to their permitted projects — enforced at the application layer across all relevant modules.
 
 ---
 
@@ -443,7 +445,7 @@ flowchart TD
 
 | Layer | Technologies |
 |---|---|
-| **Backend** | PHP 7.4 / 8.x, Laravel Framework (MVC, Eloquent ORM, Middleware, Events) |
+| **Backend** | PHP 8.2, Laravel 9.x (MVC, Eloquent ORM, Middleware, Events) |
 | **Database** | MySQL 8.x (InnoDB, normalized schema, database transactions, locking) |
 | **Frontend** | Blade Templates, JavaScript (ES6+), jQuery, AJAX, Bootstrap 4/5 |
 | **AI / NLP** | LLM-based conversational assistant with rule-based offline fallback |
